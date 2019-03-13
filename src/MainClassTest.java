@@ -43,4 +43,23 @@ public class MainClassTest
                 actual, lesser_number
         );
     }
+
+    @Test
+    public void testGetClassString()
+    {
+        String actual = Main.getClassString();
+        Assert.assertTrue(
+                this.getContainsErrorMessage(actual),
+                actual.contains("hello") || actual.contains("Hello")
+        );
+    }
+
+    public String getContainsErrorMessage(String string)
+    {
+        return String.format(
+                "The actual string `%s` from getClassString method did not contain any of expected substrings.",
+                string
+        );
+    }
+
 }
