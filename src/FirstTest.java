@@ -11,6 +11,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.net.URL;
+import java.util.List;
 
 public class FirstTest {
 
@@ -39,24 +40,47 @@ public class FirstTest {
     }
 
     @Test
-    public void testCheckSearchText()
+    public void testSearchArticles()
     {
         waitForElementAndClick(
                 By.id("org.wikipedia:id/search_container"),
                 "Cannot find Search Wikipedia input.",
                 10
         );
-        WebElement input_element = waitForElementPresent(
-                By.id("org.wikipedia:id/search_src_text"),
-                "Cannot find search input.",
-                10
-        );
-        String input_text = input_element.getAttribute("text");
 
-        Assert.assertEquals(
-                "We see unexpected input text.",
-                "Search…",
-                input_text
+        String search_title = "Python";
+
+        waitForElementAndSendKeys(
+                By.id("org.wikipedia:id/search_src_text"),
+                search_title,
+                "Cannot find search input.",
+                5
+        );
+        List<WebElement> articles_titles = waitForAllElementsPresent(
+                By.id("org.wikipedia:id/page_list_item_title"),
+                "No articles found.",
+                15
+        );
+
+        for (WebElement article : articles_titles) {
+            String title_text = article.getText();
+            System.out.println("Current title text is " + title_text);
+            Assert.assertTrue(
+                    search_title + " not found in " + title_text,
+                    title_text.contains(search_title)
+            );
+        }
+
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/search_close_btn"),
+                "Cannot find X to cancel search",
+                5
+        );
+
+        waitForElementNotPresent(
+                By.id("org.wikipedia:id/page_list_item_title"),
+                "Articles titles are still present on the page.",
+                5
         );
     }
 
@@ -69,11 +93,36 @@ public class FirstTest {
         );
     }
 
+    private List<WebElement> waitForAllElementsPresent(By by, String error_message, long timeoutInSeconds)
+    {
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+        wait.withMessage(error_message + "\n");
+        return wait.until(
+                ExpectedConditions.presenceOfAllElementsLocatedBy(by)
+        );
+    }
+
     private WebElement waitForElementAndClick(By by, String error_message, long timeoutInSeconds)
     {
         WebElement element = waitForElementPresent(by, error_message, timeoutInSeconds);
         element.click();
         return element;
+    }
+
+    private WebElement waitForElementAndSendKeys(By by, String value, String error_message, long timeoutInSeconds)
+    {
+        WebElement element = waitForElementPresent(by, error_message, timeoutInSeconds);
+        element.sendKeys(value);
+        return element;
+    }
+
+    private boolean waitForElementNotPresent(By by, String error_message, long timeoutInSeconds)
+    {
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+        wait.withMessage(error_message + "\n");
+        return wait.until(
+                ExpectedConditions.invisibilityOfElementLocated(by)
+        );
     }
 
 }
