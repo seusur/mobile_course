@@ -1,3 +1,4 @@
+import com.sun.source.tree.AssertTree;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
@@ -204,7 +205,20 @@ public class FirstTest {
 
     }
 
-    private void searchArticleAndWaitForTitlePresent(String search_text, String title)
+    @Test
+    public void searchArticleAndAssertTitle()
+    {
+        String search_title = "Python (programming language)";
+
+        searchArticle("Python", search_title);
+
+        AssertElementPresent(
+                By.id("org.wikipedia:id/view_page_title_text"),
+                "Title not present on the page."
+        );
+    }
+
+    private void searchArticle(String search_text, String title)
     {
         waitForElementAndClick(
                 By.id("org.wikipedia:id/search_container"),
@@ -222,10 +236,25 @@ public class FirstTest {
                 "Cannot find Search Wikipedia input.",
                 10
         );
+    }
+
+    private void searchArticleAndWaitForTitlePresent(String search_text, String title)
+    {
+        searchArticle(search_text, title);
+
         waitForElementPresent(
                 By.id("org.wikipedia:id/view_page_title_text"),
                 "Cannot find article title",
                 15
+        );
+    }
+
+    private void AssertElementPresent(By by, String error_message)
+    {
+        List<WebElement> elements = driver.findElements(by);
+        Assert.assertTrue(
+                error_message,
+                elements.size() != 0
         );
     }
 
