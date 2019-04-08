@@ -1,4 +1,3 @@
-import com.sun.source.tree.AssertTree;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
@@ -8,6 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.ScreenOrientation;
+
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -38,6 +39,7 @@ public class FirstTest {
     @After
     public void tearDown()
     {
+        driver.rotate(ScreenOrientation.PORTRAIT);
         driver.quit();
     }
 
