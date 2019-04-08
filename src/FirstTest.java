@@ -184,10 +184,22 @@ public class FirstTest {
                 "Cannot delete saved article",
                 10
         );
-        waitForElementPresent(
+        waitForElementAndClick(
                 By.xpath("//*[@text='" + second_search_article + "']"),
                 "Cannot find saved article",
                 10
+        );
+        String title_after_deleted_first_article = waitForElementAndGetAttribute(
+                By.id("org.wikipedia:id/view_page_title_text"),
+                "text",
+                "Cannot find title of article",
+                15
+        );
+
+        Assert.assertEquals(
+                "Article title have been changed after deleted first article",
+                second_search_article,
+                title_after_deleted_first_article
         );
 
     }
@@ -281,6 +293,12 @@ public class FirstTest {
                 .moveTo(left_x, middle_y)
                 .release()
                 .perform();
+    }
+
+    private String waitForElementAndGetAttribute(By by, String attribute, String error_message, long timeoutInSeconds)
+    {
+        WebElement element = waitForElementPresent(by, error_message, timeoutInSeconds);
+        return element.getAttribute(attribute);
     }
 
 }
