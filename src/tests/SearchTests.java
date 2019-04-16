@@ -16,7 +16,9 @@ public class SearchTests extends CoreTestCase {
         SearchPageObject SearchPageObject = new SearchPageObject(driver);
         SearchPageObject.initSearchInput();
         SearchPageObject.typeSearchLine("Java");
-        SearchPageObject.clickByArticleWithSubstring("Object-oriented programming language");
+        String title = "Java (programming language)";
+        String description = "Object-oriented programming language";
+        SearchPageObject.waitForElementByTitleAndDescription(title, description);
     }
 
     @Test
@@ -48,6 +50,25 @@ public class SearchTests extends CoreTestCase {
     }
 
     @Test
+    public void testAmountOfNotEmptySearchByMyQuery()
+    {
+        SearchPageObject SearchPageObject = new SearchPageObject(driver);
+
+        SearchPageObject.initSearchInput();
+        String search_query = "Kotlin";
+        SearchPageObject.typeSearchLine(search_query);
+        List<WebElement> articles_titles = SearchPageObject.waitForAllArticlesTitlesPresent();
+        int amount_of_search_results = articles_titles.size();
+
+        assertTrue(
+                "Found less then three search results",
+                amount_of_search_results >= 3
+        );
+
+        SearchPageObject.assertAllArticlesTitlesContainsSearchText(search_query, articles_titles);
+    }
+
+    @Test
     public void testAmountOfEmptySearch()
     {
         SearchPageObject SearchPageObject = new SearchPageObject(driver);
@@ -67,18 +88,8 @@ public class SearchTests extends CoreTestCase {
         SearchPageObject.initSearchInput();
         String search_title = "Python";
         SearchPageObject.typeSearchLine(search_title);
-
         List<WebElement> articles_titles = SearchPageObject.waitForAllArticlesTitlesPresent();
-
-        for (WebElement article : articles_titles) {
-            String title_text = article.getText();
-            System.out.println("Current title text is " + title_text);
-            assertTrue(
-                    search_title + " not found in " + title_text,
-                    title_text.contains(search_title)
-            );
-        }
-
+        SearchPageObject.assertAllArticlesTitlesContainsSearchText(search_title, articles_titles);
         SearchPageObject.clickCancelSearch();
         SearchPageObject.waitForAllArticlesTitlesToDisappear();
     }

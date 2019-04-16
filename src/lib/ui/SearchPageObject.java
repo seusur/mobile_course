@@ -1,6 +1,7 @@
 package lib.ui;
 
 import io.appium.java_client.AppiumDriver;
+import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -13,6 +14,7 @@ public class SearchPageObject extends MainPageObject {
             SEARCH_INIT_ELEMENT = "org.wikipedia:id/search_container",
             SEARCH_INPUT = "//*[contains(@text, 'Search…')]",
             SEARCH_RESULT_BY_SUBSTRING_TPL = "//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='{SUBSTRING}']",
+            SEARCH_RESULT_BY_TITLE_AND_DESCRIPTION_TPL = "//*[ .//*[@resource-id='org.wikipedia:id/page_list_item_title' and @text='{TITLE}'] and .//*[@resource-id='org.wikipedia:id/page_list_item_description' and @text='{DESCRIPTION}']]",
             SEARCH_CANCEL_BUTTON = "org.wikipedia:id/search_close_btn",
             SEARCH_RESULT_ELEMENT = "//*[@resource-id='org.wikipedia:id/search_results_list']/*[@resource-id='org.wikipedia:id/page_list_item_container']",
             SEARCH_EMPTY_RESULT_ELEMENT = "//*[@text='No results found']",
@@ -26,6 +28,13 @@ public class SearchPageObject extends MainPageObject {
     private static String getResultSearchElement(String substring)
     {
         return SEARCH_RESULT_BY_SUBSTRING_TPL.replace("{SUBSTRING}", substring);
+    }
+
+    private static String getSearchResultByTitleAndDescriptionXpath(String title, String description)
+    {
+        return SEARCH_RESULT_BY_TITLE_AND_DESCRIPTION_TPL
+                .replace("{TITLE}", title)
+                .replace("{DESCRIPTION}", description);
     }
     /* TEMPLATES METHODS END */
 
@@ -90,6 +99,16 @@ public class SearchPageObject extends MainPageObject {
         );
     }
 
+    public void waitForElementByTitleAndDescription(String title, String description)
+    {
+        String search_result_xpath = getSearchResultByTitleAndDescriptionXpath(title, description);
+        this.waitForElementPresent(
+                By.xpath(search_result_xpath),
+                "Cannot find search result with title " + title + " and description " + description,
+                5
+        );
+    }
+
     public void clickByArticleWithSubstring(String substring)
     {
         String search_result_xpath = getResultSearchElement(substring);
@@ -144,5 +163,17 @@ public class SearchPageObject extends MainPageObject {
                 "Articles titles are still present on the page.",
                 5
         );
+    }
+
+    public void assertAllArticlesTitlesContainsSearchText(String search_text, List<WebElement> articles_titles)
+    {
+        for (WebElement article : articles_titles) {
+            String title_text = article.getText();
+            System.out.println("Current title text is " + title_text);
+            Assert.assertTrue(
+                    search_text + " not found in " + title_text,
+                    title_text.contains(search_text)
+            );
+        }
     }
 }
